@@ -18,8 +18,8 @@ UPDATE_EVERY = 4        # how often to update the network
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-class DqnAgent():
-    """Interacts with and learns from the environment."""
+class DdqnAgent():
+    """Double Deep Q-Network agent that interacts with and learns from the environment."""
 
     def __init__(self, state_size, action_size, seed):
         """Initialize an Agent object.
@@ -86,8 +86,13 @@ class DqnAgent():
         """
         states, actions, rewards, next_states, dones = experiences
 
+        # Evaluate the greedy policy according to the local network
+        self.qnetwork_local.eval()
+        with torch.no_grad():
+            _, target_next_indices_local = self.qnetwork_local(next_states).detach().max(1)
+        self.qnetwork_local.train()
         # Get max predicted Q values (for next states) from target model
-        Q_targets_next = self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)
+        Q_targets_next = self.qnetwork_target(next_states).detach().gather(1, target_next_indices_local.view(-1,1))
         # Compute Q targets for current states 
         Q_targets = rewards + (gamma * Q_targets_next * (1 - dones))
 
@@ -118,7 +123,8 @@ class DqnAgent():
             target_param.data.copy_(tau*local_param.data + (1.0-tau)*target_param.data)
 
     def summary(self):
-        s = self.qnetwork_local.__str__()
+        s = 'DDQN\n'
+        s += self.qnetwork_local.__str__()
         s += '\nMemory size: {} \nBatch size: {}\nGamma: {}\nLR: {}\nTau: {}\nUpdate every: {}'.format(BUFFER_SIZE, BATCH_SIZE, GAMMA, LR, TAU, UPDATE_EVERY)
         return s
 
