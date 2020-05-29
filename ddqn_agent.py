@@ -87,10 +87,8 @@ class DdqnAgent():
         states, actions, rewards, next_states, dones = experiences
 
         # Evaluate the greedy policy according to the local network
-        self.qnetwork_local.eval()
         with torch.no_grad():
             _, target_next_indices_local = self.qnetwork_local(next_states).detach().max(1)
-        self.qnetwork_local.train()
         # Get max predicted Q values (for next states) from target model
         Q_targets_next = self.qnetwork_target(next_states).detach().gather(1, target_next_indices_local.view(-1,1))
         # Compute Q targets for current states 
