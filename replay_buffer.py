@@ -1,16 +1,46 @@
 import numpy as np
+import random
 
 from collections import namedtuple, deque
 
-PRIO_ALPHA = 0.6
-PRIO_BETA = 0.4
-PRIO_EPSILON = 1e-5
-
-class PrioritizedReplayBuffer:
+class ReplayBuffer:
     """Fixed-size buffer to store experience tuples."""
 
-    def __init__(self, action_size, buffer_size, batch_size, seed, alpha=PRIO_ALPHA):
+    def __init__(self, action_size, buffer_size, batch_size, seed):
         """Initialize a ReplayBuffer object.
+
+        Params
+        ======
+            action_size (int): dimension of each action
+            buffer_size (int): maximum size of buffer
+            batch_size (int): size of each training batch
+            seed (int): random seed
+        """
+        self.action_size = action_size
+        self.memory = deque(maxlen=buffer_size)  
+        self.batch_size = batch_size
+        self.experience = namedtuple("Experience", field_names=["state", "action", "reward", "next_state", "done"])
+        np.random.seed(seed)
+        random.seed(seed)
+    
+    def add(self, state, action, reward, next_state, done):
+        """Add a new experience to memory."""
+        e = self.experience(state, action, reward, next_state, done)
+        self.memory.append(e)
+    
+    def sample(self):
+        """Randomly sample a batch of experiences from memory."""
+        return random.sample(self.memory, k=self.batch_size)
+
+    def __len__(self):
+        """Return the current size of internal memory."""
+        return len(self.memory)
+
+class NaivePrioritizedReplayBuffer:
+    """Fixed-size buffer to store experience tuples prioritized. This is a naive implementation using ring a ring buffer."""
+
+    def __init__(self, action_size, buffer_size, batch_size, seed, alpha, epsilon):
+        """Initialize a NaivePrioritizedReplayBuffer object.
 
         Params
         ======
@@ -26,6 +56,7 @@ class PrioritizedReplayBuffer:
         self.experience = namedtuple("Experience", field_names=["state", "action", "reward", "next_state", "done"])
         np.random.seed(seed)
         self.alpha = alpha
+        self.epsilon = epsilon
         self.indices = []
     
     def add(self, state, action, reward, next_state, done):
@@ -41,8 +72,8 @@ class PrioritizedReplayBuffer:
 
         assert(len(self.memory)==len(self.priorities))
     
-    def sample(self, beta=PRIO_BETA):
-        """Sample a batch of experiences from memory according to the priorities"""
+    def sample(self, beta):
+        """Sample a batch of experiences from memory with the priorities"""
 
         N = len(self.priorities)
         # sample the indices
@@ -60,4 +91,4 @@ class PrioritizedReplayBuffer:
     def update_priorities(self, priorities):
         """Update the priorities of the selected experiences"""
         for i,p in zip(self.indices, priorities):
-            self.priorities[i] = abs(p) + PRIO_EPSILON
+            self.priorities[i] = abs(p) + self.epsilon
