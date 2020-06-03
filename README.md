@@ -14,7 +14,7 @@ The state space has 37 dimensions and contains the agent's velocity, along with 
 * 3 - turn right.
 
 
-![Trained Agent](.\img\banana.gif)
+![Trained Agent](./img/banana.gif)
 
 The environment provided by Udacity is similar to, but not identical to the [Banana Collector environment on the Unity ML-Agents GitHub page](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#banana-collector). To run the code in this project, the specified environment of udacity is needed. To set it up, follow the instructions below.
 
