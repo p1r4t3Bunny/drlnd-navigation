@@ -39,6 +39,8 @@ class DuelingQNetwork(nn.Module):
             seed (int): Random seed
             fc1_units (int): Number of nodes in first hidden layer
             fc2_units (int): Number of nodes in second hidden layer
+            fcvs_units (int): Number of nodes in the value stream
+            fcas_units (int): Number of nodes in the advantages stream
         """
         super(DuelingQNetwork, self).__init__()
         

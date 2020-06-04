@@ -45,4 +45,8 @@ To explore the environment and train the agent, start a jupyter notebook, open T
 
 # Results
 
+The trained agent solved the environment in 247 episodes.
 For a detailed explanation, please read the [project report](./Report.md)
+
+# Notes
+The project uses the code and task description provided in the **[Udacity Deep Reinforcement Learning Nanodegree](https://www.udacity.com/course/deep-reinforcement-learning-nanodegree--nd893)**  class as a basis.

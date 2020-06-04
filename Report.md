@@ -1,6 +1,15 @@
 # Summary
 
-In this report I present the implemented algorithms along with the training results and ideas for future work.
+In this report I present the implemented algorithms along with the training results and ideas for future work. The goal of the project was to solve the Banana Collector environment and to train the agent to collect yellow bananas while avoiding blue bananas.
+
+A reward of +1 is provided for collecting a yellow banana, and a reward of -1 is provided for collecting a blue banana. The task is considered solved, when the agent reaches an average score of >= 13 in 100 consecutive episodes.
+
+The state space has 37 dimensions and contains the agent's velocity, along with ray-based perception of objects around the agent's forward direction. Given this information, the agent has to learn how to best select actions. Four discrete actions are available, corresponding to:
+
+* 0 - move forward.
+* 1 - move backward.
+* 2 - turn left.
+* 3 - turn right.
 
 # Algorithms
 ## Action selection
@@ -20,11 +29,10 @@ For a detailed explanation, please refert to the DeepMind [paper](http://files.d
 The agents presented in this solution uses a neural network with 2 hidden fully connected layer as follows: input layer (37 neurons) &rarr; fc1(64) &rarr; ReLU &rarr; fc2(64) &rarr; ReLU &rarr; output layer(4) except the ones with the dueling DQN structure.
 
 ## Double DQN
-Vanilla DQN tends to overestimate the action value as is. To solve this, [Double DQN](https://arxiv.org/abs/1509.06461) was proposed. Double DQN uses two separate networks Q and Q'. Q is for selecting the best action a with maximum Q-value of next state, while for calculating expected Q-value, Q’ is used by using the action a selected in the previous step.
+Vanilla DQN tends to overestimate the action value as is. To solve this, [Double DQN](https://arxiv.org/abs/1509.06461) was proposed. Double DQN uses two separate networks Q and a target Q'. Q is for selecting the best action a with maximum Q-value of next state, while for calculating expected Q-value, Q’ is used - by using the action a selected in the previous step. Since Fixed Q-Targets are already used, the target Q' network can be used as the target network.
 
 ## Prioritized Experience Replay
-The idea of [PER](https://arxiv.org/abs/1511.05952) is to prioritize experiences that may be more important than others. If we sample the experience buffer uniformly, we may "miss out" on experiences that occour less frequently, but contain important information (produce a bigger TD-error) and the agent could learn much from it.
-
+The idea of [PER](https://arxiv.org/abs/1511.05952) is to prioritize experiences that may be more important than others. If we sample the experience buffer uniformly, we may "miss out" on experiences that occour less frequently, but contain important information (produce a bigger TD-error) and the agent could learn much from it. In order to make sure those experiences will be selected, a probability is assigned to all experiences based on their TD-error: experiences with a higher information content (thus a higher TD-error) will be sampled with a higher probability.
 
 
 ## Dueling DQN
@@ -32,7 +40,7 @@ The [Dueling DQN](https://arxiv.org/abs/1511.06581) algorithm represents two sep
 
 # Results
 
-The following table contains the tested agents with the episode number where they solved the task. With the default hyperparameters, the combination of Double and Dueling DQN solved the task (reached an average score of at least 13 over 100 consecutive episodes) in 247 episodes.
+The following table contains the trained agents with the episode number where they solved the task. With the default hyperparameters, the combination of Double and Dueling DQN solved the task (reached an average score of at least 13 over 100 consecutive episodes) in 247 episodes.
 
 | Agent | Solved in # episodes | DoubleDQN | PER | Dueling |
 |-------|----------------------|-----------|-----|---------|
@@ -49,7 +57,7 @@ The following table contains the tested agents with the episode number where the
 The following plot shows the scores together with the moving average with a window size of 50:
 ![scores](./img/scores.png)
 ## Hyperparameters
-The hyperparamteres used by the agent are listed in the following table:
+The hyperparamters used by the agent are listed in the following table:
 
 | Hyperparameter | Value   | Description                                             |
 |----------------|---------|---------------------------------------------------------|
@@ -76,3 +84,6 @@ The trained model is in [this file](./dueling_double_dqn.pth).
 **Reward shaping**: An idea would be to rethink the reward system of the environment. As long as there are many bananas around the agents, it is "easy" to find and collect them. Later on, as the number of available bananas decrease, it is much harder to find a new banana therefore a bigger reward for those bananas could improve the performance of the agent.
 
 **Noisy Networks**: This [paper](https://arxiv.org/abs/1706.10295) introduces a learning agent with parametric noise added to its weights, and shows that the induced stochasticity of the agent's policy can be used to aid efficient exploration.
+
+# Notes
+The project uses the code and task description provided in the **[Udacity Deep Reinforcement Learning Nanodegree](https://www.udacity.com/course/deep-reinforcement-learning-nanodegree--nd893)**  class as a basis.
